@@ -1,62 +1,71 @@
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from django.shortcuts import get_object_or_404
-from .models import Category, Product, Review
-from .serializers import CategorySerializer, ProductSerializer, ReviewSerializer
+from .models import Product, Category, Review
+from .serializers import ProductSerializer, ProductsSerializer, CategoriesSerializer, ReviewSerializer, ReviewsSerializer, ProductsReviewSerializer
+from django.db.models import Avg
 
-
-# Categories
-
-@api_view(['GET'])
-def category_list_api_view(request):
-    categories = Category.objects.all()
-    serializer = CategorySerializer(categories, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-@api_view(['GET'])
-def category_detail_api_view(request, id):
-    try:
-        category = Category.objects.get(id=id)
-    except Category.DoesNotExist:
-        return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
-    serializer = CategorySerializer(category)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-# Products
 
 @api_view(['GET'])
 def product_list_api_view(request):
     products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    data = ProductsSerializer(products, many=True).data
+    return Response(data=data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def product_detail_api_view(request, id):
     try:
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
-        return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
-    serializer = ProductSerializer(product)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(data={'error': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
+    data = ProductSerializer(product, many=False).data
+    return Response(data=data)
+
+@api_view(['GET'])
+def category_list_api_view(request):
+    categories = Category.objects.all()
+    data = CategoriesSerializer(categories, many=True).data
 
 
-# Reviews
+    return Response(data=data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def category_detail_api_view(request, id):
+    try:
+        category = Category.objects.get(id=id)
+    except Category.DoesNotExist:
+        return Response(data={'error': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
+    data = CategoriesSerializer(category, many=False).data
+    return Response(data=data)
 
 @api_view(['GET'])
 def review_list_api_view(request):
     reviews = Review.objects.all()
-    serializer = ReviewSerializer(reviews, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    data = ReviewsSerializer(reviews, many=True).data
+
+
+    return Response(data=data, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def review_detail_api_view(request, id):
     try:
         review = Review.objects.get(id=id)
     except Review.DoesNotExist:
-        return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
-    serializer = ReviewSerializer(review)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(data={'error': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
+    data = ReviewSerializer(review, many=False).data
+    return Response(data=data)
 
+
+@api_view(['GET'])
+def product_review_list_api_view(request):
+    products = Product.objects.all()
+    data = ProductsReviewSerializer(products, many=True).data
+    return Response(data=data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def category_list_api_view(request):
+    categories = Category.objects.all()
+    data = CategoriesSerializer(categories, many=True).data
+    return Response(data=data, status=200)
