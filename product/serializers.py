@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Product, Category, Review
 from django.db.models import Avg
+from rest_framework import serializers
+from django.contrib.auth import authenticate
+
 
 
 class ProductsSerializer(serializers.ModelSerializer):
