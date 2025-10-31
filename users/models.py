@@ -1,18 +1,25 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
-import random
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from users.managers import CustomUserManager
 
-class User(AbstractUser):
-    is_active = models.BooleanField(default=False)  
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(unique=True)
+    is_active = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
 
-class ConfirmCode(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='confirm_code')
-    code = models.CharField(max_length=6)
+    objects = CustomUserManager()
 
-    def save(self, *args, **kwargs):
-        if not self.code:
-            self.code = str(random.randint(100000, 999999))
-        super().save(*args, **kwargs)
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
 
     def __str__(self):
-        return f"{self.user.username} - {self.code}"
+        return self.email or ""
+
+
+class ConfirmationCode(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='confirmation_code')
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Код подтверждения для {self.user.email}"
